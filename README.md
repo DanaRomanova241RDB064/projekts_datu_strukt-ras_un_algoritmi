@@ -1,0 +1,2 @@
+# projekts_datu_strukt-ras_un_algoritmi
+projekts_datu_struktūras_un_algoritmi
