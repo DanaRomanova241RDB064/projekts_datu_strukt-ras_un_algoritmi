@@ -4,7 +4,7 @@ import os
 wb=Workbook()
 ws=wb.active
 
-kd,ld,md,teo,eks=[],[],[],[],[]
+kd,ld,md,teo,eks={},{},{},{},{}
 
 varianti={1:(kd,2,"kontroldarba"),2:(ld,3,"labaratorijas darba"),3:(md,4,"mājasdarba"),4:(teo,5,"teorijas testa"),5:(eks,6,"eksāmena")}
 
@@ -37,7 +37,7 @@ def faila_izveide(path="vertejumi.xlsx") :
 
         ws_vertejumi=wb.create_sheet("Vērtējumi")
         ws_vertejumi.append(["Studiju kurss","Vērtējuma veids","Vērtējumi"])
-
+        print("Jauns fails tika veiksmīgi izveidots!")
         wb.save(path)
         wb.close()
     return load_workbook(path)
@@ -50,7 +50,7 @@ def nolasit_vertejumus(wb):
     for kurss, vert_veids, vert in vertejumu_lapa.iter_rows(min_row=2,values_only=True):
         for saraksts, _, veids in varianti.values():
             if veids == vert_veids:
-                saraksts.append(vert)
+                saraksts.setdefault(kurss, []).append(vert)
                 break
 
 def pievienot_studiju_kursus(ws):
@@ -81,9 +81,11 @@ def pievienot_vid_vert(ws):
     rinda, kursa_nosaukums= izveleties_studiju_kursu(ws)
     
     vert=float_kludas_apstrade("Ievadi "+vertejuma_veids+" vērtējumu: ")
-    vert_saraksts.append(vert)
     
-    vid_vert=sum(vert_saraksts)/len(vert_saraksts)
+    saraksts=vert_saraksts.setdefault(kursa_nosaukums, [])
+    saraksts.append(vert)
+    
+    vid_vert=sum(saraksts)/len(saraksts)
     cell = ws.cell(row=rinda,column=kolonna,value=vid_vert)
     cell.number_format = '0.00'
     
@@ -112,7 +114,7 @@ def saglabat_gala_vertejumu(ws, rinda, gala_vert):
     cell=ws.cell(row=rinda, column=7, value=gala_vert)
     cell.number_format='0.00'
     kursa_nosaukums= ws.cell(row=rinda, column=1).value
-    print("Kursam "+kursa_nosaukums+"gala vērtējums ir: "+str(gala_vert))
+    print("Kursam "+kursa_nosaukums+" gala vērtējums ir: "+str(gala_vert))
 
 def ierakstit_gala_vertejumu(ws):
     r, _=izveleties_studiju_kursu(ws)
@@ -123,31 +125,36 @@ def ierakstit_gala_vertejumu(ws):
 def ievadit_laboto_vertejumu(veidi):
     return float_kludas_apstrade("Ievadi jauno "+veidi+" vērtējumu: ")
 
-def izdzest_pedejo_vertejumu(vert_saraksts, jaunais_vert):
-    if vert_saraksts:
-        vert_saraksts.pop()
-    vert_saraksts.append(jaunais_vert)
-
-def vid_vert_ar_jauno(vert_saraksts):
-    return sum(vert_saraksts)/len(vert_saraksts)
-
 def ierakstit_jauno_vid_vert(ws, rinda, kolonna, vid_vert):
     cell=ws.cell(row=rinda, column=kolonna, value=vid_vert)
     cell.number_format='0.00'
 
 def labot_pedejo_vertejumu(ws):
-    r,_=izveleties_studiju_kursu(ws)
+    r,kursa_nosaukums=izveleties_studiju_kursu(ws)
     vert_saraksts, kolonna, veidi=vertejuma_veida_izvele()
-    if vert_saraksts is None:
+    if not vert_saraksts: return
+
+    atsevisku_vertejumu_lapa=ws.parent["Vērtējumi"]
+    for rinda in range (atsevisku_vertejumu_lapa.max_row, 1,-1):
+        if(atsevisku_vertejumu_lapa.cell(row=rinda, column=1).value==kursa_nosaukums and atsevisku_vertejumu_lapa.cell(row=rinda,column=2).value==veidi):
+            atsevisku_vertejumu_lapa.delete_rows(rinda,1)
+            break
+
+    saraksts = vert_saraksts.setdefault(kursa_nosaukums, [])
+    if not saraksts:
+        print("Šim kursam vēl nav vērtējumu, ko labot.")
         return
+    
     jaunais_vert=ievadit_laboto_vertejumu(veidi)
-    izdzest_pedejo_vertejumu(vert_saraksts,jaunais_vert)
-    vid_vert=vid_vert_ar_jauno(vert_saraksts)
+    saraksts.pop()
+    saraksts.append(jaunais_vert)
+    vid_vert=sum(saraksts)/len(saraksts)
+    
     ierakstit_jauno_vid_vert(ws,r,kolonna,vid_vert)
-    ws.parent["Vērtējumi"].append([jaunais_vert])
+    ws.parent["Vērtējumi"].append([kursa_nosaukums, veidi, jaunais_vert])
 
 while True:
-    pirmas_darbibas_izvele = int_kludas_apstrade("Izvēlies ko tu vēlies darīt: \n 1)Izveidot jaunu failu, kurā glabāsies mani vērtējumi\n 2)Pievienot jaunu studiju kursu\n 3) Esošajam studiju kursam pievienot jaunu vērtējumu\n 4)Aprēķināt vidējo gala vērtējumu studiju kursiem\n 5)Labot pēdējo vērtējumu kādam kursam\n 6)Beigt darbu\n")
+    pirmas_darbibas_izvele = int_kludas_apstrade("Izvēlies ko tu vēlies darīt: \n 1)Izveidot jaunu failu, kurā glabāsies mani vērtējumi\n 2)Pievienot jaunu studiju kursu\n 3)Esošajam studiju kursam pievienot jaunu vērtējumu\n 4)Aprēķināt vidējo gala vērtējumu studiju kursiem\n 5)Labot pēdējo vērtējumu kādam kursam\n 6)Beigt darbu\n")
     
     if pirmas_darbibas_izvele==1:
        wb.close()
@@ -183,10 +190,10 @@ while True:
         wb.save("vertejumi.xlsx")
     
     if pirmas_darbibas_izvele==6:
+        print("Darbs pabeigts!")
         break
-
     else:
-        print("Lūdzu izvēlies darbību 1-6!")
+        print("")
 
     wb.save("vertejumi.xlsx")
     wb.close
