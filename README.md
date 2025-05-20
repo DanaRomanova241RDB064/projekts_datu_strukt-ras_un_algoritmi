@@ -47,8 +47,9 @@ _faila_izveide()_ sākumā pārbauda, vai vertejumi.xlsx jau ir mapē, ja nav, t
 
 ### Datu struktūras un to izskaidrojums
 Projektā galvenokārt ir trīs veidu Python datu struktūras, lai sakārtotu un apstrādātu studentu vērtējumus:
-* Saraksti _kd, ld, md, teo, eks = [],[],[],[],[]_
-Katrs no šiem sarakstiem satur atsevišķā vērtējumu veida rezultātus: kontroldarbi, laboratorijas darbi, mājasdarbi, teorijas testi un eksāmens. Piemēram, kad lietotājs pievieno jaunu kontroldarbu vērtējumu, ar _kd.append(vert)_ šī vērtība tiek saglabāta sarakstā kd, lai to vēlāk izmantotu vidējā vērtējuma aprēķinam ar _sum(kd) / len(kd)_.
+* Vārdnīcas _kd, ld, md, teo, eks = {},{},{},{},{}_
+Katra no šīm vārdnīcām glabā atsevišķus vērtējumu sarakstus un katras aclēgas vērtība ir studiju kursa nosaukums.
+Piemēram, kad lietotājs pievieno jaunu kontroldarbu vērtējumu - 6 un 7, studiju kursā matemātika, tad - _kd{'matemātika':[6,7],...}_
 
 
 * Vārdnīca _varianti={1:(kd,2,"kontroldarba"),2:(ld,3,"labaratorijas darba"),3:(md,4,"mājasdarba"),4:(teo,5,"teorijas testa"),5:(eks,6,"eksāmena")}_
@@ -111,4 +112,51 @@ Ieraksta aprēķināto gala vērtējumu 7. kolonnā un izvada paziņojumu konsol
 Ļauj lietotājam mainīt pēdējo ievadīto vērtējumu kādā no vērtējuma veidiem, piemēram, ja students kādu vērtējumu ir labojis, izdzēš aizvietoto un pārrēķina vidējo vērtējumu un saglabā to excel.
 
 
-### 
+### Programmatūras izmantošana
+Programma izpilda 6 galvenos uzdevumus:
+
+1. Palaižot programmu un izvēloties izvēlnē 1) Izveidot jaunu failu, programma:
+
+* Pārbaudīs, vai vertejumi.xlsx jau eksistē, ja fails nav atrodams, izveidos jaunu ar nepieciešamo sākotnējo darba lapas struktūru un nosaukumiem.
+
+* Konsolē tiks izvadīts paziņojums par jauna faila izveidi.
+
+![Ekrānuzņēmums 2025-05-20 204128](https://github.com/user-attachments/assets/a20ac8a0-7b6a-4fe6-b913-ea40fed7f838)
+
+2. Izvēloties opciju 2) Pievienot jaunu studiju kursu:
+
+* Lietotājam pajautās, cik studiju kursus vēlas pievienot, un lietotājam jāievada kursa nosaukumu:
+
+![image](https://github.com/user-attachments/assets/d7d3d771-244d-40e5-a7fa-b9eeb73ed998)
+
+3. Izvēloties opciju 3) Esošajam studiju kursam pievienot jaunu vērtējumu:
+
+* Vispirms programma izvadīs vērtējuma veidu izvēli, lietotājam jāievada izvēles numurs, tad programma izvada pieejamos studiju kursus un atkal jāievada izvēles numurs.
+  
+* Izvadīs pieprasījumu ierakstīt konkrēta veida vērtējumu, kad lietotājs to ievadīs, tad izvadīs pašreizējo vidējo vērtējumu norādītajā vērtējuma veidā
+
+![image](https://github.com/user-attachments/assets/478262b2-9b0e-44e5-ab91-42e1e3165a0b)
+
+4. Izvēloties opciju 4) Aprēķināt vidējo gala vērtējumu studiju kursiem:
+
+* Programma lūgs ievadīt katra vērtējuma veida īpatsvaru gala vērtējuma veidošanā
+  
+* Gala vērtējums tiks aprēķināts kā visu vidējo vērtējumu reizinājums ar īpatsvaru un to summa tiks ierakstīta 7. kolonnā.
+
+![image](https://github.com/user-attachments/assets/3ae13344-41d7-4ca7-8a4f-8e2bd5e4bf6d)
+
+
+5. Izvēloties opciju 5) Labot pēdējo vērtējumu kādam kursam:
+
+* Programma izmantos iepriekšējos vērtējumus, izdzēsīs norādītā vērtējuma veida pēdējo vērtību un ļaus ievadīt jaunu vērtējumu.
+
+* Ierakstot jauno vērtību, pārrēķinās vidējo vērtību un ierakstīs excel tabulā.
+
+  ![image](https://github.com/user-attachments/assets/d49f44d6-a2e5-4f26-b74b-cce3ca60c789)
+
+
+6. Izvēloties 6) Beigt darbu, programma saglabās visas izmaiņas, beigs izvēles darbību ciklu un pašu programmu.
+   ![image](https://github.com/user-attachments/assets/9c80442f-a027-4766-a47a-8991b988f573)
+
+
+Katru reizi pēc jebkuras darbības excel fails vertejumi.xlsx tiek atjaunināts, lai ievadītie vērtējumi vienmēr tiktu saglabāti.
